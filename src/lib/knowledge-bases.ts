@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { knowledgeBasesTable, notesTable } from "@/lib/db/schema";
 
@@ -80,4 +80,56 @@ export async function updateKnowledgeBaseName(
     .returning({ id: knowledgeBasesTable.id });
 
   return updated ?? null;
+}
+
+// notesTable has no userId, so ownership is checked through the knowledge base.
+export async function updateNoteByUser(
+  userId: string,
+  noteId: number,
+  values: { question: string; answer: string },
+) {
+  const [updated] = await db
+    .update(notesTable)
+    .set(values)
+    .where(
+      and(
+        eq(notesTable.id, noteId),
+        inArray(
+          notesTable.knowledgeBaseId,
+          db
+            .select({ id: knowledgeBasesTable.id })
+            .from(knowledgeBasesTable)
+            .where(eq(knowledgeBasesTable.userId, userId)),
+        ),
+      ),
+    )
+    .returning({
+      id: notesTable.id,
+      knowledgeBaseId: notesTable.knowledgeBaseId,
+    });
+
+  return updated ?? null;
+}
+
+export async function deleteNoteByUser(userId: string, noteId: number) {
+  const [deleted] = await db
+    .delete(notesTable)
+    .where(
+      and(
+        eq(notesTable.id, noteId),
+        inArray(
+          notesTable.knowledgeBaseId,
+          db
+            .select({ id: knowledgeBasesTable.id })
+            .from(knowledgeBasesTable)
+            .where(eq(knowledgeBasesTable.userId, userId)),
+        ),
+      ),
+    )
+    .returning({
+      id: notesTable.id,
+      knowledgeBaseId: notesTable.knowledgeBaseId,
+    });
+
+  return deleted ?? null;
 }

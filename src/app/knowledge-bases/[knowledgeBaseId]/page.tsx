@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { z } from "zod";
 import { updateKnowledgeBase } from "./actions";
 import { EditKnowledgeBaseDialog } from "./_components/EditKnowledgeBaseDialog";
+import { NoteActions } from "./_components/NoteActions";
 import {
   getKnowledgeBaseByUser,
   getNotesByKnowledgeBase,
@@ -69,11 +70,20 @@ async function KnowledgeBaseDetail({
               >
                 <div className="flex items-start justify-between gap-4">
                   <h2 className="font-medium">{note.question}</h2>
-                  {note.difficulty && (
-                    <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs capitalize text-muted-foreground">
-                      {note.difficulty}
-                    </span>
-                  )}
+                  <div className="-mt-1 -mr-2 flex shrink-0 items-center gap-2">
+                    {note.difficulty && (
+                      <span className="rounded-full border border-border px-2 py-0.5 text-xs capitalize text-muted-foreground">
+                        {note.difficulty}
+                      </span>
+                    )}
+                    <NoteActions
+                      note={{
+                        id: note.id,
+                        question: note.question,
+                        answer: note.answer,
+                      }}
+                    />
+                  </div>
                 </div>
                 <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
                   {note.answer}
