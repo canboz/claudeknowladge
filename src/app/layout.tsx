@@ -5,9 +5,11 @@ import {
   SignUpButton,
   UserButton,
 } from "@clerk/nextjs";
+import { dark } from "@clerk/ui/themes";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Suspense } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -28,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${poppins.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ClerkProvider>
+        <ClerkProvider appearance={{ theme: dark }}>
           <header className="flex items-center justify-end gap-4 p-4">
             <Suspense>
               <Show when="signed-out">
@@ -41,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </Suspense>
           </header>
           {children}
+          <Toaster theme="dark" />
         </ClerkProvider>
       </body>
     </html>

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
+import { updateKnowledgeBase } from "./actions";
+import { EditKnowledgeBaseDialog } from "./_components/EditKnowledgeBaseDialog";
 import {
   getKnowledgeBaseByUser,
   getNotesByKnowledgeBase,
@@ -36,13 +38,23 @@ async function KnowledgeBaseDetail({
 
   return (
     <>
-      <h1 className="text-3xl font-semibold tracking-tight">
-        {knowledgeBase.name}
-      </h1>
-      <p className="mt-2 text-muted-foreground">
-        Created {knowledgeBase.createdAt.toLocaleDateString("en-US")} ·{" "}
-        {notes.length} {notes.length === 1 ? "note" : "notes"}
-      </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {knowledgeBase.name}
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            Created {knowledgeBase.createdAt.toLocaleDateString("en-US")} ·{" "}
+            {notes.length} {notes.length === 1 ? "note" : "notes"}
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <EditKnowledgeBaseDialog
+            knowledgeBase={{ id: knowledgeBase.id, name: knowledgeBase.name }}
+            onSave={updateKnowledgeBase}
+          />
+        </div>
+      </div>
       <section className="mt-8">
         {notes.length === 0 ? (
           <p className="text-muted-foreground">

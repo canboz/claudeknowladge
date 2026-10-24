@@ -62,3 +62,22 @@ export async function getKnowledgeBasesByUser(userId: string) {
     .where(eq(knowledgeBasesTable.userId, userId))
     .orderBy(desc(knowledgeBasesTable.createdAt));
 }
+
+export async function updateKnowledgeBaseName(
+  userId: string,
+  knowledgeBaseId: number,
+  name: string,
+) {
+  const [updated] = await db
+    .update(knowledgeBasesTable)
+    .set({ name })
+    .where(
+      and(
+        eq(knowledgeBasesTable.id, knowledgeBaseId),
+        eq(knowledgeBasesTable.userId, userId),
+      ),
+    )
+    .returning({ id: knowledgeBasesTable.id });
+
+  return updated ?? null;
+}
