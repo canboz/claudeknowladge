@@ -66,18 +66,6 @@ async function KnowledgeBaseDetail({
                 <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
                   {note.answer}
                 </p>
-                {note.tags && note.tags.length > 0 && (
-                  <ul className="mt-3 flex flex-wrap gap-2">
-                    {note.tags.map((tag) => (
-                      <li
-                        key={tag}
-                        className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-                      >
-                        {tag}
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </li>
             ))}
           </ul>
