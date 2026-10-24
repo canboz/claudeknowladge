@@ -49,7 +49,7 @@ async function KnowledgeBaseDetail({
             This knowledge base doesn&apos;t have any notes yet.
           </p>
         ) : (
-          <ul className="grid gap-4">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {notes.map((note) => (
               <li
                 key={note.id}
