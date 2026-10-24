@@ -1,8 +1,55 @@
 import "server-only";
 
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { knowledgeBasesTable } from "@/lib/db/schema";
+import { knowledgeBasesTable, notesTable } from "@/lib/db/schema";
+
+export async function getKnowledgeBaseByUser(
+  userId: string,
+  knowledgeBaseId: number,
+) {
+  const [knowledgeBase] = await db
+    .select({
+      id: knowledgeBasesTable.id,
+      name: knowledgeBasesTable.name,
+      createdAt: knowledgeBasesTable.createdAt,
+    })
+    .from(knowledgeBasesTable)
+    .where(
+      and(
+        eq(knowledgeBasesTable.id, knowledgeBaseId),
+        eq(knowledgeBasesTable.userId, userId),
+      ),
+    );
+
+  return knowledgeBase ?? null;
+}
+
+export async function getNotesByKnowledgeBase(
+  userId: string,
+  knowledgeBaseId: number,
+) {
+  return db
+    .select({
+      id: notesTable.id,
+      question: notesTable.question,
+      answer: notesTable.answer,
+      tags: notesTable.tags,
+      difficulty: notesTable.difficulty,
+    })
+    .from(notesTable)
+    .innerJoin(
+      knowledgeBasesTable,
+      eq(notesTable.knowledgeBaseId, knowledgeBasesTable.id),
+    )
+    .where(
+      and(
+        eq(notesTable.knowledgeBaseId, knowledgeBaseId),
+        eq(knowledgeBasesTable.userId, userId),
+      ),
+    )
+    .orderBy(desc(notesTable.createdAt));
+}
 
 export async function getKnowledgeBasesByUser(userId: string) {
   return db
