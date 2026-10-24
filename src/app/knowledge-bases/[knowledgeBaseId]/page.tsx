@@ -4,7 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { z } from "zod";
-import { updateKnowledgeBase } from "./actions";
+import { createNote, updateKnowledgeBase } from "./actions";
+import { AddNoteDialog } from "./_components/AddNoteDialog";
 import { EditKnowledgeBaseDialog } from "./_components/EditKnowledgeBaseDialog";
 import { NoteActions } from "./_components/NoteActions";
 import {
@@ -50,6 +51,10 @@ async function KnowledgeBaseDetail({
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <AddNoteDialog
+            knowledgeBaseId={knowledgeBase.id}
+            onCreate={createNote}
+          />
           <EditKnowledgeBaseDialog
             knowledgeBase={{ id: knowledgeBase.id, name: knowledgeBase.name }}
             onSave={updateKnowledgeBase}

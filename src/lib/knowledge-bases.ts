@@ -82,6 +82,23 @@ export async function updateKnowledgeBaseName(
   return updated ?? null;
 }
 
+// Returns null when the knowledge base doesn't exist or belongs to someone else.
+export async function createNoteByUser(
+  userId: string,
+  knowledgeBaseId: number,
+  values: { question: string; answer: string },
+) {
+  const knowledgeBase = await getKnowledgeBaseByUser(userId, knowledgeBaseId);
+  if (!knowledgeBase) return null;
+
+  const [created] = await db
+    .insert(notesTable)
+    .values({ knowledgeBaseId: knowledgeBase.id, ...values })
+    .returning({ id: notesTable.id });
+
+  return created ?? null;
+}
+
 // notesTable has no userId, so ownership is checked through the knowledge base.
 export async function updateNoteByUser(
   userId: string,

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { knowledgeBaseNameSchema } from "@/lib/knowledge-base-schema";
 import {
+  createNoteByUser,
   deleteNoteByUser,
   updateKnowledgeBaseName,
   updateNoteByUser,
@@ -53,6 +54,53 @@ export async function updateKnowledgeBase(
 
   revalidatePath(`/knowledge-bases/${parsed.data.knowledgeBaseId}`);
   revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+const createNoteSchema = z.object({
+  knowledgeBaseId: z.number().int().positive(),
+  question: noteQuestionSchema,
+  answer: noteAnswerSchema,
+});
+
+export type CreateNoteInput = z.infer<typeof createNoteSchema>;
+
+export type CreateNoteResult =
+  | { ok: true }
+  | {
+      ok: false;
+      error: string;
+      fieldErrors?: { question?: string[]; answer?: string[] };
+    };
+
+export async function createNote(
+  input: CreateNoteInput,
+): Promise<CreateNoteResult> {
+  const parsed = createNoteSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "Invalid input",
+      fieldErrors: z.flattenError(parsed.error).fieldErrors,
+    };
+  }
+
+  const { userId } = await auth();
+  if (!userId) return { ok: false, error: "You must be signed in" };
+
+  try {
+    const created = await createNoteByUser(
+      userId,
+      parsed.data.knowledgeBaseId,
+      { question: parsed.data.question, answer: parsed.data.answer },
+    );
+    // Other users' knowledge bases behave exactly like missing ones.
+    if (!created) return { ok: false, error: "Knowledge base not found" };
+  } catch {
+    return { ok: false, error: "Failed to create the note" };
+  }
+
+  revalidatePath(`/knowledge-bases/${parsed.data.knowledgeBaseId}`);
   return { ok: true };
 }
 
